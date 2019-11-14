@@ -1,0 +1,1 @@
+help: Encrypt only the control connection, test packets are neither signed nor encrypted

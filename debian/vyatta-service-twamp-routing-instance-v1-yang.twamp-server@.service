@@ -1,0 +1,19 @@
+[Unit]
+Description=TWAMP server (for routing instance %I)
+After=network-online.target remote-fs.target systemd-journald-dev-log.socket
+Wants=network-online.target
+PartOf=twamp-server.target
+
+[Service]
+Type=forking
+Restart=on-failure
+PIDFile=/run/twamp-%i/twamp-server.pid
+ExecStart=/usr/sbin/chvrf %i /usr/sbin/twampd -c /run/twamp-%i/config -R /run/twamp-%i
+LimitNOFILE=4096
+SyslogIdentifier=twampd [%i]
+
+# default dieby + 1
+TimeoutStopSec=6
+
+[Install]
+WantedBy=multi-user.target

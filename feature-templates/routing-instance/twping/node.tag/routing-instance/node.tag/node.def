@@ -1,0 +1,4 @@
+allowed: echo '<routing-instance>' && /opt/vyatta/share/tmplscripts/routing-instance/routing-instance-list.sh
+help: Routing Instance
+include: /twping/node.tag
+run: ${vyatta_bindir}/twping ${@:2}

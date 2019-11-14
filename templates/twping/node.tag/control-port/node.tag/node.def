@@ -1,0 +1,4 @@
+allowed: echo -n '<port>'
+help: Control port
+include: /twping/node.tag
+run: ${vyatta_bindir}/twping ${@:2}

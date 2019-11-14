@@ -1,0 +1,4 @@
+allowed: echo -n '<bytes>'
+help: Padding size
+include: /twping/node.tag
+run: ${vyatta_bindir}/twping ${@:2}

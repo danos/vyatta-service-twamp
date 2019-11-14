@@ -1,0 +1,54 @@
+#!/usr/bin/perl
+#
+# Copyright (c) 2017, AT&T Intellectual Property. All rights reserved.
+# Copyright (c) 2016-17 Brocade Communications Systems, Inc.
+# All rights reserved
+
+use strict;
+use warnings;
+use JSON;
+
+my $input = join( '', <STDIN> );
+my $rpc = decode_json $input;
+
+my @cmd = ("/opt/vyatta/bin/twping-json");
+my @cmd_args = ("--accumulate", "--", "/opt/vyatta/bin/twping", "$rpc->{host}");
+
+my $passphrase;
+
+# Build the twping command from the input paramters
+while ( my ( $key, $value ) = each %{$rpc} ) {
+    if ($key =~ /^(-|port-range)/) {
+        # These are mandatory nodes under port-range, so should exist
+        push(@cmd_args, ("port-range", "$value->{start}-$value->{end}"));
+    } elsif ($key =~ /^(-|authentication)/) {
+        # These are mandatory nodes under the
+        # authentication container, so should exist
+        $passphrase = $value->{passphrase};
+        push(@cmd_args, ("auth-mode", $value->{mode}, "user", $value->{user}));
+    } else {
+        # These have a direct mapping from input parameter name
+        # to the command parameter name
+        push(@cmd_args, ($key, $value)) unless $key =~ /^(-|host)/;
+    }
+}
+
+# Execute the twping command
+# We may write a passphrase to twping's STDIN
+my $twping_in;
+my $pid = open($twping_in, "|-") // die("Fork failure: $!\n");
+
+if ($pid) {
+    # Parent
+    print $twping_in $passphrase if defined($passphrase);
+    my $success = close($twping_in);
+
+    waitpid($pid, 0);
+    exit(1) if ! $success;
+}
+else {
+    # Child
+    # Executing via setsid forces twping to accept a passphrase on STDIN
+    unshift(@cmd, "setsid") if defined($passphrase);
+    exec({ $cmd[0] } @cmd, @cmd_args) or die("Failure running twping: $!\n");
+}

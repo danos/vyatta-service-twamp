@@ -1,0 +1,4 @@
+allowed: echo -n '<count>'
+help: Packet count
+include: /twping/node.tag
+run: ${vyatta_bindir}/twping ${@:2}

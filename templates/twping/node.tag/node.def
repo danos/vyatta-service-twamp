@@ -1,0 +1,3 @@
+help: Measure round trip time using TWAMP
+allowed: echo -n '<hostname> <x.x.x.x> <h:h:h:h:h:h:h:h>'
+run: ${vyatta_bindir}/twping ${@:2}

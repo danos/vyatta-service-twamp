@@ -1,0 +1,4 @@
+/opt/vyatta/bin/twping-json
+/opt/vyatta/bin/twping-output-to-json
+lib/Vyatta opt/vyatta/share/perl5
+lib/vyatta/twamp usr/lib/python3/dist-packages/vyatta

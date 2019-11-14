@@ -1,0 +1,4 @@
+allowed: echo '<x.x.x.x> <h:h:h:h:h:h:h:h> <interface>' && vyatta-interfaces.pl --show all
+help: Source IP address or interface
+include: /twping/node.tag
+run: ${vyatta_bindir}/twping ${@:2}

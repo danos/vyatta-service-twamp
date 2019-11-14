@@ -1,0 +1,2 @@
+/usr/share/configd/yang/vyatta-service-twamp-routing-instance-v1.yang
+feature-templates/routing-instance/* opt/vyatta/share/vyatta-op/templates

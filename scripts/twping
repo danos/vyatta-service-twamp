@@ -1,0 +1,228 @@
+#! /usr/bin/perl
+# Wrapper around the base  twping command to provide
+#  nicer API (ie no flag arguments)
+#
+# **** License ****
+# Copyright (c) 2019 AT&T Intellectual Property. All rights reserved.
+# Copyright (c) 2014-2017 by Brocade Communications Systems, Inc.
+# All rights reserved.
+#
+# This code was originally developed by Vyatta, Inc.
+# Portions created by Vyatta are Copyright (C) 2012-2013 Vyatta, Inc.
+# All Rights Reserved.
+# **** End License ****
+#
+# Syntax
+#   twping HOST
+#           [ auth-mode <authenticate|encrypt|mixed> ]
+#           [ user <user> ]
+#           [ count <count> ]
+#           [ interval <seconds>]
+#           [ padding <bytes> ]
+#           [ port-range <port1-port2> ]
+#           [ session-count <count> ]
+#           [ test-dscp-value <DSCP value> ]
+#           [ control-port <port> ]
+
+use strict;
+use warnings;
+use IO::Socket;
+use Socket qw( SOCK_STREAM IPPROTO_TCP getaddrinfo );
+use Set::Scalar;
+use feature ":5.14";
+
+use lib "/opt/vyatta/share/perl5";
+use Vyatta::Config;
+use Vyatta::Interface;
+use Vyatta::Misc qw(valid_ip_addr valid_ipv6_addr getInterfaces);
+
+my $cfg = new Vyatta::Config();
+
+# different regex is used depending on whether expected value is INTERGER or FLOAT
+use constant {
+    INTEGER => "INTEGER",
+    FLOAT => "FLOAT",
+};
+
+# Table for translating options to arguments
+my %options = (
+    'auth-mode'               => 'A:',  
+    'user'                    => 'u:',  
+    'count'                   => 'c:',  
+    'sample'                  => 'l:',
+    'interval'                => 'i:',  
+    'padding'                 => 's:',  
+    'session-count'           => 'r:', 
+    'test-dscp-value'         => 'D:', 
+    'source-address'          => 'S:',
+    'interface'               => 'B:',
+);
+my $portrange_arg = "-P";
+
+my %value_types = (
+    'count'                 => INTEGER,
+    'sample'                => INTEGER,
+    'interval'              => FLOAT,
+    'padding'               => INTEGER,
+    'session-count'         => INTEGER,
+);
+
+my %value_constraints = (
+    'count'                 => '0..*',
+    'sample'                => '1..*',
+    'interval'              => '0.0..*',
+    'padding'               => '0..65000',
+    'session-count'         => '0..65535',
+);
+
+# First argument is host
+my $host = shift @ARGV;
+die "twping: Missing host\n"
+    unless defined($host);
+
+my $cmd = '/usr/bin/twping';
+my $chvrf_cmd = 'chvrf';
+my $controlport = '';
+my $routing_instance;
+my %interface_contexts;
+
+# This should match the range defined for the twping RPC
+my $portrange = "8760-8960";
+
+my @cmdargs = ( 'twping' );
+my $args = [ 'twping', $host, @ARGV ];
+shift @$args; shift @$args;
+while (my $arg = shift @$args) {
+    if ($arg eq 'control-port') {
+        my $optarg = shift @$args;
+        die "twping: missing argument for $arg option\n"
+            unless defined($optarg);
+        $controlport = $optarg;
+        next;
+    }
+    elsif ($arg eq "routing-instance") {
+        die("No routing instance support!\n") unless (-X "/usr/sbin/$chvrf_cmd");
+
+        die "twping: routing-instance cannot be specified multiple times\n"
+            if defined($routing_instance);
+
+        $routing_instance = shift @$args;
+        die "twping: missing argument for $arg option\n"
+            unless defined($routing_instance);
+        next;
+    }
+    elsif ($arg eq "port-range") {
+        $portrange = shift @$args;
+        die "twping: missing argument for port-range option\n"
+            unless defined($portrange);
+        next;
+    }
+
+    my $pingarg = $options{$arg};
+    die "twping: unknown option $arg\n"
+	unless $pingarg;
+    
+    my $flag = "-" . substr($pingarg, 0, 1);
+    push @cmdargs, $flag;
+
+    if (rindex($pingarg, ':') != -1) {
+        my $optarg = shift @$args;
+        my $auth = 0;
+
+        die "twping: missing argument for $arg option\n"
+            unless defined($optarg);
+
+        if ($arg eq "source-address" or $arg eq "interface") {
+            if (! grep { $_ eq $optarg } getInterfaces()) {
+                die("Unknown interface '$optarg'\n") if $arg eq "interface";
+                die("'$optarg' is not a valid interface or IP address\n")
+                    if (! valid_ip_addr($optarg) and ! valid_ipv6_addr($optarg));
+            }
+            else {
+                $interface_contexts{$optarg} =
+                    Vyatta::Interface::get_orig_intf_rd_map($cfg)->{$optarg}
+                    // "default";
+            }
+        }
+
+        elsif ($arg eq "auth-mode") {
+            if ($optarg eq 'mixed') {
+                $optarg = 'M';
+            }
+            elsif ($optarg eq 'authenticate') {
+                $optarg = 'A';
+            }
+            elsif ($optarg eq 'encrypt' ) {
+                $optarg = 'E';
+            }
+        }
+
+        # we only want to check the values for flags that are either ints or floats
+        if (exists $value_constraints{$arg}) {
+            if ($value_types{$arg} eq "INTEGER") {
+                unless ($optarg =~ /^\d+$/) {
+                    printErrorAndExit($optarg, $arg);
+                }
+            }
+            elsif ($value_types{$arg} eq "FLOAT") {
+                unless ($optarg =~ /^\d+(\.\d+)?$/) {
+                    printErrorAndExit($optarg, $arg);
+                }
+            }
+        }
+        push @cmdargs, $optarg;
+    }
+}
+
+# Ensure that all specified interfaces are in the same routing instance
+my $interface_ri_contexts = Set::Scalar->new(values(%interface_contexts));
+die "twping: specified interfaces are in different routing instances\n"
+        if $interface_ri_contexts->size > 1;
+
+if (defined($routing_instance)) {
+    # If a routing instance was specified then all interfaces must be in
+    # that routing instance
+    for my $interface (keys(%interface_contexts)) {
+        die "twping: $interface is not in routing instance '$routing_instance'\n"
+                unless $routing_instance eq $interface_contexts{$interface};
+    }
+}
+elsif ($interface_ri_contexts->size > 0) {
+    # Otherwise choose the interface(s) routing instance
+    $routing_instance = @$interface_ri_contexts[0];
+}
+else {
+    $routing_instance = "default";
+}
+
+# Prepend the existing command arguments with the chvrf args
+# and change to the 'chvrf' command
+if ($routing_instance ne "default") {
+    my @chvrf_args = ($chvrf_cmd, $routing_instance);
+    $cmd = $chvrf_cmd;
+    push @chvrf_args, @cmdargs;
+    @cmdargs = @chvrf_args;
+}
+
+# socktype doesn't matter since we're not going to use res
+my %hints = (
+    socktype => SOCK_STREAM,
+);
+my ( $err, @res) = getaddrinfo( $host, $controlport, \%hints);
+die "twping: Cannot resolve host or port: $err\n"
+    if $err;
+
+push @cmdargs, ($portrange_arg, $portrange);
+
+if (defined($controlport)) {
+    $host = '[' . $host . ']:' . $controlport;
+}
+exec { $cmd } @cmdargs, $host;
+
+sub printErrorAndExit
+{
+    print $_[0] . " is an invalid value for '" . $_[1] . "'. Valid values are (";
+    print $value_constraints{$_[1]} . ").\n";
+    exit;
+}
+

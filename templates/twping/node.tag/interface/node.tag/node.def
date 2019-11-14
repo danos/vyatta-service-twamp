@@ -1,0 +1,4 @@
+allowed: echo '<interface>' && vyatta-interfaces.pl --show all
+help: Interface
+include: /twping/node.tag
+run: ${vyatta_bindir}/twping ${@:2}

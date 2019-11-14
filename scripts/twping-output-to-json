@@ -1,0 +1,85 @@
+#!/usr/bin/perl
+#
+# Copyright (c) 2017, AT&T Intellectual Property. All rights reserved.
+# Copyright (c) 2017 Brocade Communications Systems, Inc.
+# All rights reserved
+
+use strict;
+use warnings;
+use IO::Handle;
+use Getopt::Long;
+
+use lib "/opt/vyatta/share/perl5";
+use Vyatta::Twamp::Twping qw(twping_output_to_json
+  twping_stats_start_line_match
+  twping_stats_end_line_match);
+
+sub usage {
+    return "Usage: $0 [--json-only] [--accumulate]\n";
+}
+
+my $json_only  = 0;
+my $accumulate = 0;
+GetOptions(
+    "json-only"  => \$json_only,
+    "accumulate" => \$accumulate
+) or die( usage() );
+die("--json-only cannot be used with --accumulate\n")
+  if ( $json_only && $accumulate );
+
+# Required to ensure line flushing when not connected to a terminal
+STDOUT->autoflush(1);
+STDERR->autoflush(1);
+
+my $failures      = 0;
+my $reached_stats = -1;
+my $twping_output = "";
+my $json_output;
+
+if ($accumulate) {
+    map( { $twping_output .= $_ } <STDIN> );
+    $json_output = twping_output_to_json($twping_output)
+      // die( "Failed to parse:\n" . $twping_output . "\n" );
+    print $json_output;
+    exit(0);
+}
+
+# Non-accumulation (line-by-line) processing
+while ( my $line = <STDIN> ) {
+    $twping_output .= $line;
+
+    if ( twping_stats_start_line_match($line) ) {
+        $reached_stats = 1;
+        next;
+    }
+
+    # twping may print errors between stats blocks - print them to
+    # STDERR unless we should only be printing JSON output
+    if ( $reached_stats <= 0 and not $json_only ) {
+        print STDERR $line;
+    }
+
+    if ( $reached_stats > 0 && twping_stats_end_line_match($line) ) {
+        $json_output = twping_output_to_json($twping_output) . "\n";
+        if ( defined($json_output) ) {
+            print $json_output;
+        }
+        else {
+            $failures++;
+            print STDERR "Failed to parse:\n" . $twping_output . "\n";
+        }
+
+        $reached_stats = 0;
+        $twping_output = "";
+        next;
+    }
+}
+
+if ( $reached_stats < 0 ) {
+
+    # When not in JSON only mode we have already printed the output to STDERR
+    print STDERR $twping_output if $json_only;
+    exit(1);
+}
+
+die("Failures ocurred while parsing output\n") if $failures;

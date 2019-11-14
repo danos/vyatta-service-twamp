@@ -1,0 +1,2 @@
+help: Show TWAMP server information
+allowed: echo -n 'status session'

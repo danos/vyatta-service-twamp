@@ -1,0 +1,4 @@
+allowed: echo -n '<seconds>'
+help: Seconds between packets
+include: /twping/node.tag
+run: ${vyatta_bindir}/twping ${@:2}

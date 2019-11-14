@@ -1,0 +1,2 @@
+help: Show TWAMP server status
+run: /opt/vyatta/sbin/twamp-show-status.pl

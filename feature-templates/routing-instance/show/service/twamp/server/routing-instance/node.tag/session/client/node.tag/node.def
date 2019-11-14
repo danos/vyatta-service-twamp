@@ -1,0 +1,4 @@
+allowed: echo -n '<x.x.x.x> <h:h:h:h:h:h:h:h>'
+help: Client IP address
+run: ${vyatta_sbindir}/show-twamp-sessions.py --client $9 --routing-instance $6
+

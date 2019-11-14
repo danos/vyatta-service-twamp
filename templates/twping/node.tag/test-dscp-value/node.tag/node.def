@@ -1,0 +1,4 @@
+allowed: echo -n '<DSCP value>'
+help: Base 10 DSCP value <0-63>, by default 0
+include: /twping/node.tag
+run: ${vyatta_bindir}/twping ${@:2}

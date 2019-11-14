@@ -1,0 +1,5 @@
+help: Restart TWAMP server
+run:
+        if cli-shell-api existsEffective service twamp server; then
+            invoke-rc.d twamp-server restart
+        fi

@@ -1,0 +1,4 @@
+allowed: echo -n '<user>'
+help: User identity
+include: /twping/node.tag
+run: ${vyatta_bindir}/twping ${@:2}

@@ -1,0 +1,71 @@
+#!/usr/bin/python3
+#
+# Copyright (c) 2017, AT&T Intellectual Property. All rights reserved.
+# Copyright (c) 2017 Brocade Communications Systems, Inc.
+# All rights reserved
+
+import sys
+import argparse
+
+from vyatta.twamp.twping import TwpingJson
+
+def main(args_l):
+    TWPING_ARGS_SEP = "--"
+
+    parser = argparse.ArgumentParser()
+    excl_grp = parser.add_mutually_exclusive_group()
+    excl_grp.add_argument('-j', '--json-only', action='store_true',
+                          help="Only output JSON unless an error occurs")
+    excl_grp.add_argument('-a', '--accumulate', action='store_true',
+                          help="Wait until twping exits before encoding output")
+    parser.usage = """%(prog)s [-h] [-a] [-j] {} twping [args] ...
+
+twping JSON formatter
+
+Runs the specified twping argument list and prints JSON encoded statistics
+to standard output.
+
+Additional non-JSON encoded messages may be printed unless --json-only is
+specified.
+
+However, unexpected errors will cause non-JSON encoded messages to be printed
+even when --json-only is specified.
+
+--accumulate implicitly has the behaviour of --json-only.
+
+If an error occurs the exit code is non-zero.
+
+Examples:
+  $ %(prog)s -- /opt/vyatta/bin/twping 1.1.1.1 count 5
+  $ %(prog)s --json-only -- /usr/bin/twping 1.1.1.1 -c 5
+""".format(TWPING_ARGS_SEP)
+
+    # Determine position of the twping arguments and extract them
+    try:
+        twping_args_pos = args_l.index(TWPING_ARGS_SEP)
+        args_l.remove(TWPING_ARGS_SEP)
+    except ValueError:
+        parser.print_help()
+        exit(1)
+
+    twping_args = args_l[twping_args_pos:]
+    if not twping_args:
+        parser.print_help()
+        exit(1)
+
+    # Parse our own arguments
+    args = parser.parse_args(args_l[:twping_args_pos])
+
+    # Run twping
+    twping_json = TwpingJson(twping_args)
+    try:
+        if twping_json.run(args.json_only, args.accumulate):
+            exit(0)
+    except KeyboardInterrupt:
+        twping_json.terminate()
+    except Exception as e:
+        print(e, file=sys.stderr)
+    exit(1)
+
+if __name__ == "__main__":
+    main(sys.argv[1:])

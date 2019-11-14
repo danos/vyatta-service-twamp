@@ -1,0 +1,7 @@
+/opt/vyatta/bin/twamp-ping-rpc
+/opt/vyatta/bin/twping
+/opt/vyatta/sbin/show-twamp-sessions.py
+/opt/vyatta/sbin/twamp-show-status.pl
+/opt/vyatta/sbin/twampd-config.pl
+/usr/share/configd/yang/vyatta-service-twamp-v1.yang
+templates/* opt/vyatta/share/vyatta-op/templates

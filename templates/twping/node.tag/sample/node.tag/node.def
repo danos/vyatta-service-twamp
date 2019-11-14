@@ -1,0 +1,4 @@
+allowed: echo -n '<seconds>'
+help: Interval at which to sample statistics
+include: /twping/node.tag
+run: ${vyatta_bindir}/twping ${@:2}

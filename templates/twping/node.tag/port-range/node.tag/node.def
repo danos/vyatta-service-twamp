@@ -1,0 +1,4 @@
+allowed: echo -n '<p1>-<p2>'
+help: Port range
+include: /twping/node.tag
+run: ${vyatta_bindir}/twping ${@:2}

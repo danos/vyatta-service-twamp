@@ -1,0 +1,10 @@
+allowed: echo '<routing-instance>' && /opt/vyatta/share/tmplscripts/routing-instance/routing-instance-list.sh
+help: Routing Instance
+run:
+        if ! cli-shell-api existsEffective routing routing-instance $5; then
+            echo "Routing instance '$5' has not been configured";
+        elif cli-shell-api existsEffective routing routing-instance $5 service twamp server; then
+            systemctl restart "twamp-server@$5.service"
+        else
+            echo "TWAMP is not configured in routing instance '$5'"
+        fi

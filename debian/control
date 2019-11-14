@@ -1,0 +1,68 @@
+Source: vyatta-service-twamp
+Section: contrib/net
+Priority: extra
+Maintainer: Vyatta Package Maintainers <DL-vyatta-help@att.com>
+Build-Depends:
+ cpio,
+ debhelper (>= 9),
+ dh-autoreconf,
+ dh-python,
+ dh-systemd,
+ dh-yang,
+ python3
+Standards-Version: 3.9.4
+
+Package: vyatta-twamp
+Architecture: all
+Depends:
+ libjson-perl,
+ python3,
+ ${misc:Depends},
+ ${perl:Depends},
+ ${python3:Depends}
+Description: Vyatta TWAMP support scripts and libraries
+ Vyatta scripts and libraries supporting TWAMP
+
+Package: vyatta-service-twamp-v1-yang
+Architecture: all
+Depends:
+ i2util-tools (>= 1.6-1vyatta3),
+ libjson-perl,
+ libreadonly-perl,
+ libset-scalar-perl,
+ libvyatta-cfg1,
+ libvyatta-interface-perl,
+ python3,
+ python3-vyatta-cfgclient,
+ twamp-client (>= 4.2.1-1vyatta1),
+ twamp-client-vyatta,
+ twamp-server (>= 4.2.1-1vyatta1),
+ twamp-server-vyatta,
+ vyatta-cfg (>= 0.104.18.1),
+ vyatta-twamp (= ${source:Version}),
+ ${misc:Depends},
+ ${perl:Depends},
+ ${python3:Depends},
+ ${yang:Depends}
+Provides: vyatta-service-twamp
+Description: Vyatta TWAMP configuration and operational templates and scripts
+ Vyatta TWAMP CLI configuration and operational templates and scripts.
+
+Package: vyatta-service-twamp-routing-instance-v1-yang
+Architecture: all
+Depends:
+ chvrf-utility,
+ systemd,
+ ${misc:Depends},
+ ${yang:Depends}
+Provides: vyatta-service-twamp-routing-instance-yang
+Description: Vyatta TWAMP YANG, scripts and templates for routing instances
+ Vyatta TWAMP YANG, CLI configuration and operational templates and scripts for
+ routing instances.
+
+Package: vyatta-service-twamp-client-v1-yang
+Architecture: all
+Depends: ${misc:Depends}, ${yang:Depends}
+Provides: vyatta-service-twamp-client-yang
+Description: Vyatta common TWAMP client YANG
+ Common Vyatta TWAMP client YANG
