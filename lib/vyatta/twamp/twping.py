@@ -7,7 +7,7 @@
 """ twping (TWAMP client) module """
 
 import subprocess
-from threading import RLock
+from threading import RLock, Timer
 
 class TwpingJson(object):
     """
@@ -24,7 +24,8 @@ class TwpingJson(object):
         self._twping_json_proc = None
         self._proc_lock = RLock()
 
-    def run(self, json_only=False, accumulate=False, callback_func=None):
+    def run(self, json_only=False, accumulate=False, callback_func=None,
+            timeout=None):
         """
         Runs the given twping argument list, blocking until the tests
         complete or an error occurs.
@@ -68,10 +69,18 @@ class TwpingJson(object):
             self.terminate()
             raise
 
+        if isinstance(timeout, int):
+            t = Timer(timeout, self.terminate)
+            t.start()
+        else:
+            t = None
+
         # Handle the output from the JSON encoder
         for line in self._twping_json_proc.stdout:
             callback_func(line)
 
+        if t is not None:
+            t.cancel()
         self.terminate()
 
         return self._twping_json_proc.returncode == 0 and \

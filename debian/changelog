@@ -1,3 +1,11 @@
+vyatta-service-twamp (1.32) UNRELEASED; urgency=medium
+
+  * Fix TwpingJson.running property
+  * TwpingJson: terminate twping process first
+  * TwpingJson: add timeout support
+
+ -- Duncan Eastoe <duncan.eastoe@att.com>  Tue, 17 Dec 2019 16:28:03 +0000
+
 vyatta-service-twamp (1.31) unstable; urgency=medium
 
   * DANOS Import master
