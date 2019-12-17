@@ -92,7 +92,7 @@ class TwpingJson(object):
     @property
     def running(self):
         """ Returns True if twping is running """
-        return self._twping_running() and self._twping_json_running()
+        return self._twping_running and self._twping_json_running
 
     def terminate(self):
         """ Stops the twping process """
