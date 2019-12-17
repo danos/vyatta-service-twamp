@@ -97,10 +97,10 @@ class TwpingJson(object):
     def terminate(self):
         """ Stops the twping process """
         with self._proc_lock:
-            if self._twping_json_running:
-                self._twping_json_proc.terminate()
-                self._twping_json_proc.wait()
-
             if self._twping_running:
                 self._twping_proc.terminate()
                 self._twping_proc.wait()
+
+            if self._twping_json_running:
+                self._twping_json_proc.terminate()
+                self._twping_json_proc.wait()
