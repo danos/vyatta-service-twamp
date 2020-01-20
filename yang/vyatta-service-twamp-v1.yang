@@ -30,7 +30,7 @@ module vyatta-service-twamp-v1 {
 		 Web: www.att.com";
 
 	description
-		"Copyright (c) 2017-2019 AT&T Intellectual Property
+		"Copyright (c) 2017-2020 AT&T Intellectual Property
 		 All rights reserved.
 
 		 Copyright (c) 2015-2017 by Brocade Communications Systems, Inc.
@@ -67,6 +67,9 @@ module vyatta-service-twamp-v1 {
 
 		 TWAMP server configuration and twping RPC.";
 
+	revision 2020-01-20 {
+		description "Increase maximum control sessions to 4096 per server.";
+	}
 	revision 2019-10-17 {
 		description "Add must on password configuration leaf";
 	}
@@ -405,9 +408,18 @@ module vyatta-service-twamp-v1 {
 				}
 				
 				leaf maximum-connections {
-					type session-num;
+					type uint16 {
+						range 1..4096;
+					}
+					must "current() <= 64 or (../client-list or ../mode[. = 'no-unauthenticated'])" {
+						error-message "Disable unauthenticated mode or configure a client-list " +
+									  "to enable more than 64 control sessions";
+					}
+					must "current() * ../maximum-sessions-per-connection <= 4096" {
+						error-message "Maximum allowed test sessions must not exceed 4096";
+					}
 					default 16;
-					configd:help "Maximum number of control sessions supported per Twamp server <1-64>, by default 16";
+					configd:help "Maximum number of control sessions supported per Twamp server <1-4096>, by default 16";
 				}
 				
 				leaf maximum-sessions-per-connection {

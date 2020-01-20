@@ -2,7 +2,7 @@ Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 
 Files: *
 Copyright:
-    Copyright (c) 2017-2019 AT&T Intellectual Property
+    Copyright (c) 2017-2020 AT&T Intellectual Property
     Copyright (c) 2014-2017 by Brocade Communications Systems, Inc.
     Copyright (c) 2010-2013 Vyatta, Inc.
 License: GPL-2
@@ -15,7 +15,7 @@ License: LGPL-2.1
 
 Files: yang/*
 Copyright:
-    Copyright (c) 2017-2019 AT&T Intellectual Property
+    Copyright (c) 2017-2020 AT&T Intellectual Property
     Copyright (c) 2015-2017 by Brocade Communications Systems, Inc.
 License: BSD-3-clause
 

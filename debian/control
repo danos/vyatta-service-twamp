@@ -36,7 +36,7 @@ Depends:
  python3-vyatta-cfgclient,
  twamp-client (>= 4.2.1-1vyatta1),
  twamp-client-vyatta,
- twamp-server (>= 4.2.1-1vyatta1),
+ twamp-server (>= 4.2.1-1vyatta2),
  twamp-server-vyatta,
  vyatta-cfg (>= 0.104.18.1),
  vyatta-twamp (= ${source:Version}),
