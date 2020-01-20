@@ -419,25 +419,25 @@ module vyatta-service-twamp-v1 {
 						error-message "Maximum allowed test sessions must not exceed 4096";
 					}
 					default 16;
-					configd:help "Maximum number of control sessions supported per Twamp server <1-4096>, by default 16";
+					configd:help "Maximum number of control sessions supported per TWAMP server, by default 16";
 				}
 				
 				leaf maximum-sessions-per-connection {
 					type session-num;
 					default 8;
-					configd:help "Maximum number of test sessions per control session <1-64>, by default 8";
+					configd:help "Maximum number of test sessions per control session, by default 8";
 				}
 				
 				leaf server-inactivity-timeout {
 					type timeout;
 					default 900;
-					configd:help "Control session inactivity timeout in seconds <1-3600>, by default 900";
+					configd:help "Control session inactivity timeout in seconds, by default 900";
 				}
 					
 				leaf test-inactivity-timeout {
 					type timeout;
 					default 900;
-					configd:help "Test session inactivity timeout in seconds <1-3600>, by default 900";
+					configd:help "Test session inactivity timeout in seconds, by default 900";
 				}
 				
 				leaf port {
@@ -445,7 +445,7 @@ module vyatta-service-twamp-v1 {
 						range 1..65535;
 					}
 					default 862;
-					configd:help "Server TCP port for control session <1-65535>, by default 862";
+					configd:help "Server TCP port for control session, by default 862";
 				}
 					
 				leaf dscp-value {
@@ -453,7 +453,7 @@ module vyatta-service-twamp-v1 {
 						range 0..63;
 					}
 					default 0;
-					configd:help "Base 10 value of dscp byte in ip header in control packets sent from server <0-63>, by default 0";
+					configd:help "Base 10 value of DSCP byte in IP header in control packets sent from server, by default 0";
 				}
 			}
 		}
