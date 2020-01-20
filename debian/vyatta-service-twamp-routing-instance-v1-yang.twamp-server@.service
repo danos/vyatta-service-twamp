@@ -9,7 +9,8 @@ Type=forking
 Restart=on-failure
 PIDFile=/run/twamp-%i/twamp-server.pid
 ExecStart=/usr/sbin/chvrf %i /usr/sbin/twampd -c /run/twamp-%i/config -R /run/twamp-%i
-LimitNOFILE=4096
+LimitNOFILE=8192
+TasksMax=8193
 SyslogIdentifier=twampd [%i]
 
 # default dieby + 1
