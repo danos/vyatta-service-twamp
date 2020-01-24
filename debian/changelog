@@ -1,10 +1,13 @@
-vyatta-service-twamp (1.32) UNRELEASED; urgency=medium
+vyatta-service-twamp (1.32) unstable; urgency=medium
 
   * Fix TwpingJson.running property
   * TwpingJson: terminate twping process first
   * TwpingJson: add timeout support
+  * Increase maximum-connections range, 64 -> 4096
+  * twamp-server@.service: Support 4096 control procs
+  * yang: cleanup server config help statements
 
- -- Duncan Eastoe <duncan.eastoe@att.com>  Tue, 17 Dec 2019 16:28:03 +0000
+ -- Duncan Eastoe <duncan.eastoe@att.com>  Fri, 24 Jan 2020 16:30:40 +0000
 
 vyatta-service-twamp (1.31) unstable; urgency=medium
 
