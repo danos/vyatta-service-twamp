@@ -30,7 +30,7 @@ Depends:
  libjson-perl,
  libreadonly-perl,
  libset-scalar-perl,
- libvyatta-cfg1,
+ libvyatta-config-perl,
  libvyatta-interface-perl,
  python3,
  python3-vyatta-cfgclient,
