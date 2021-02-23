@@ -1,3 +1,10 @@
+vyatta-service-twamp (1.33) unstable; urgency=medium
+
+  [ Duncan Eastoe ]
+  * debian: Swap libvyatta-cfg1 dependency
+
+ -- Mark Gillott <mgillott@vyatta.att-mail.com>  Tue, 23 Feb 2021 11:40:25 +0000
+
 vyatta-service-twamp (1.32) unstable; urgency=medium
 
   * Fix TwpingJson.running property
