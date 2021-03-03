@@ -4,10 +4,9 @@ Priority: extra
 Maintainer: Vyatta Package Maintainers <DL-vyatta-help@att.com>
 Build-Depends:
  cpio,
- debhelper (>= 9),
+ debhelper (>= 9.20160709),
  dh-autoreconf,
  dh-python,
- dh-systemd,
  dh-yang,
  python3
 Standards-Version: 3.9.4
