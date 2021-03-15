@@ -3,7 +3,7 @@
 #
 # **** License ****
 #
-# Copyright (c) 2017-2018, AT&T Intellectual Property.  All rights reserved.
+# Copyright (c) 2017-2018, 2021 AT&T Intellectual Property.  All rights reserved.
 # Copyright (c) 2014-2016 by Brocade Communications Systems, Inc.
 # All rights reserved.
 #
@@ -109,6 +109,13 @@ sub confAppendAuthMode {
 	}
 	
 	$conf_output .= "authmode $mode\n\n";
+}
+
+# Append dataplane offload mode to the config output
+sub confAppendOffloadMode {
+	if ($vyattaConfig->exists("no-offload")) {
+		$conf_output .= "nooffload\n\n";
+	}
 }
 
 # Append the value of a Vyatta config key and its corresponding
@@ -282,6 +289,7 @@ if ($vyattaConfig->exists($TWAMP_CONF_TREE_BASE)) {
 	$conf_output .= $HEADER;
 	confAppendUnexposedDefaults();
 	confAppendAuthMode();
+	confAppendOffloadMode();
 	confAppendKeyValue("port", "srcnode", $DEFAULT_PORT, ":");
 	confAppendKeyValue("maximum-connections", "maxcontrolsessions", $DEFAULT_MAX_CONTROL_SESSIONS);
 	confAppendKeyValue("server-inactivity-timeout", "controltimeout", $DEFAULT_SERVER_INACTIVITY_TIMEOUT);

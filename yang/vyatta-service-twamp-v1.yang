@@ -30,7 +30,7 @@ module vyatta-service-twamp-v1 {
 		 Web: www.att.com";
 
 	description
-		"Copyright (c) 2017-2020 AT&T Intellectual Property
+		"Copyright (c) 2017-2021 AT&T Intellectual Property
 		 All rights reserved.
 
 		 Copyright (c) 2015-2017 by Brocade Communications Systems, Inc.
@@ -67,6 +67,9 @@ module vyatta-service-twamp-v1 {
 
 		 TWAMP server configuration and twping RPC.";
 
+	revision 2021-06-02 {
+		description "Add no-offload option to server.";
+	}
 	revision 2020-01-20 {
 		description "Increase maximum control sessions to 4096 per server.";
 	}
@@ -454,6 +457,11 @@ module vyatta-service-twamp-v1 {
 					}
 					default 0;
 					configd:help "Base 10 value of DSCP byte in IP header in control packets sent from server, by default 0";
+				}
+
+				leaf no-offload {
+					type empty;
+					configd:help "Disable support for dataplane processing of test frames";
 				}
 			}
 		}
