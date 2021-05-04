@@ -3,6 +3,7 @@
 # Module: show-twamp-sessions.py
 #
 # **** License ****
+# Copyright (c) 2021 AT&T Intellectual Property.  All rights reserved.
 # Copyright (c) 2014-2017, Brocade Communications Systems, Inc.
 # All Rights Reserved.
 #
@@ -114,12 +115,25 @@ class ControlSession (object):
 
 class TestSession (object):
 
-    def __init__(self, sid, testSenderAddr, reflectorAddr, status, dscp):
+    def __init__(self, sid, testSenderAddr, reflectorAddr, status, dscp, offload):
         self.sid = sid;
         self.testSenderAddr = testSenderAddr
         self.reflectorAddr = reflectorAddr
         self.status = status
         self.dscp = dscp
+        #
+        # The stream offload attribute is simply "offload:0"
+        # (disabled) or "offload:1" (enabled). See the owamp
+        # repository.
+        #
+        if not offload:
+            self.offload = "no";
+        else:
+            onoff = offload.split(":")[1]
+            if int(onoff) == 0:
+                self.offload = "no"
+            else:
+                self.offload = "yes"
 
     def getSID(self):
         return self.sid
@@ -140,10 +154,10 @@ class TestSession (object):
 
     def getFormattedData(self, maxSenderAddrLen, maxReflectorAddrLen):
         formatStr = '{0:32}    {1:' + str(maxSenderAddrLen) +'}    {2:'\
-                    + str(maxReflectorAddrLen) + '}    {3:8}    {4:5}'
+                    + str(maxReflectorAddrLen) + '}    {3:8}    {4:5}   {5:8}'
         return formatStr.format(self.sid, self.getSenderAddr(), \
                                 self.getReflectorAddr(), \
-                                self.status, self.dscp)
+                                self.status, self.dscp, self.offload)
 
 def showAll():
     totalNumberSessions = 0
@@ -219,8 +233,9 @@ def showSummary():
 
 def getTestSessionHeader(maxSenderAddrLen, maxReflectorAddrLen): 
     formatStr = '\n\n\t{0:32}    {1:' + str(maxSenderAddrLen) +'}    {2:' + \
-                 str(maxReflectorAddrLen) + '}    {3:8}    {4:5}'
-    return formatStr.format('Session ID', 'Sender', 'Reflector', 'Status', 'DSCP')
+                 str(maxReflectorAddrLen) + '}    {3:8}    {4:5}   {5:8}'
+    return formatStr.format('Session ID', 'Sender', 'Reflector', 'Status',
+                            'DSCP', 'Offload')
 
 def parseArgs():
     """ Define and parse the arguments to the script """
@@ -357,12 +372,14 @@ for file in os.listdir(SESSION_FILES_DIR):
             reflectorAddr = testLineSplit[2]
             status = testLineSplit[3]
             dscp = testLineSplit[4]
+            offload = testLineSplit[6]
         except IndexError:
             print("Failed to parse test session data in '{}' (line {})".format(
                     filePath, n+1))
             continue
 
-        testSession = TestSession(sid, testSenderAddr, reflectorAddr, status, dscp)
+        testSession = TestSession(sid, testSenderAddr, reflectorAddr, status,
+                                  dscp, offload)
         controlSession.addTestSession(testSession)
 
     allControlSessions[pid] = controlSession
