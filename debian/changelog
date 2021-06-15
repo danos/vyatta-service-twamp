@@ -1,3 +1,12 @@
+vyatta-service-twamp (1.35) unstable; urgency=medium
+
+  * Add support for dataplane offload (Fixes: VRVDR-53580)
+  * twamp-server@.service: run twampd as part of the "adm" group
+    (Fixes: VRVDR-53580)
+  * Include offload state in operational output (Fixes: VRVDR-53580)
+
+ -- Mark Gillott <mgillott@vyatta-att-mail.com>  Tue, 15 Jun 2021 16:59:10 +0100
+
 vyatta-service-twamp (1.34) unstable; urgency=medium
 
   [ Nicholas Brown ]
